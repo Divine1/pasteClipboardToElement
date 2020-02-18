@@ -23,7 +23,8 @@ app.get("/home",(req,res)=>{
     res.render("home.hbs");
 })
 
-app.post("/imageupload",multerupload.single('imageupload'),(req,res)=>{
+//app.post("/imageupload",multerupload.single('imageupload'),(req,res)=>{
+app.post("/imageupload",multerupload.array('imageupload',6),(req,res)=>{
   console.log("in /imageupload")
   const filedata = req.file
   const bodydata = req.body

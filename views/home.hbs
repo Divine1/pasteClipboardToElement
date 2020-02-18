@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PasteClipboard-IntoElement</title>
+    <style>
+
+        #copypastearea{
+            background-color: red;
+            height:200px;
+            width: 200px;
+            border:1px solid black;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,9 +23,8 @@
             <input type="file" id="imageupload" name="imageupload" />
             <button onclick="uploadfile()">Upload</button>
         </div>
-        <div id="image" 
-        style="border:1px solid black"
-        contenteditable="true">for c+v</div>
+        <div id="copypastearea"></div>
+        <button onclick="showUploadData()">ShowUploadData</button>
     </div>
 </body>
 <script src="/js/axios.min.js"></script>
@@ -115,10 +123,16 @@
         }
     }
     let invokeUploadHandler = handleUpload()
-    document.getElementById("image").addEventListener("paste", function(e){
+    document.getElementById("copypastearea").addEventListener("paste", function(e){
         console.log("in paste listener")
         invokeUploadHandler.invoke(e)
-        console.log("invokeUploadHandler.bodyFormData ",invokeUploadHandler.bodyFormData)
     }, false);
+    let showUploadData=()=>{
+        console.log("invokeUploadHandler.bodyFormData ",invokeUploadHandler.bodyFormData)
+        invokeUploadHandler.bodyFormData.forEach((data,index)=>{
+            console.log("data ",data)
+        })
+        fileUploadHttp(invokeUploadHandler.bodyFormData)
+    }
 </script>
 </html>
