@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>PasteClipboard-IntoElement</title>
+</head>
+<body>
+    <div class="container">
+        <div id="content" contenteditable="true">for button</div>
+        <button onclick="clickme()">Paste</button>
+        <div>
+            <input type="file" id="imageupload" name="imageupload" />
+            <button onclick="uploadfile()">Upload</button>
+        </div>
+        <div id="image" 
+        style="border:1px solid black"
+        contenteditable="true">for c+v</div>
+    </div>
+</body>
+<script src="/js/axios.min.js"></script>
+<script>
+    console.log("PasteClipboard-IntoElement logged")
+    var clickme=()=>{
+        let content = document.getElementById("content")
+        console.log("content ",content.innerHTML)
+        content.innerHTML=  document.execCommand("paste");
+        navigator.clipboard.readText().then(text => {
+            console.log("text ",text)
+            content.innerHTML=text
+        });
+    }
+    var uploadfile=()=>{
+        console.log("in uploadfile()")
+        var files = document.getElementById("imageupload").files
+        
+        console.log("files ",files)
+        console.log("files.length ",files.length)
+
+
+        let bodyFormData = new FormData();
+        bodyFormData.set('userName', 'Fred');
+
+        for (let i=0;i< files.length;i++){
+            console.log("filedata ",files[i])
+            bodyFormData.append('imageupload', files[i]); 
+        }
+        fileUploadHttp(bodyFormData)
+    }
+    const fileUploadHttp = (bodyFormData)=>{
+        axios.post(
+            '/imageupload',
+            bodyFormData,
+            {
+                headers: {'Content-Type': 'multipart/form-data' }
+        })
+        .then(function (res) {
+            console.log(res);            
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+    }
+   
+
+    document.getElementById("content").addEventListener("paste", function(thePasteEvent){
+        console.log("thePasteEvent ",thePasteEvent)
+        var items = thePasteEvent.clipboardData.items;
+        console.log("items ",items)
+    }, false);
+
+
+    let retrieveImageFromClipboardAsBlob = (pasteEvent, callback)=>{
+        console.log("in retrieveImageFromClipboardAsBlob start")
+        if(pasteEvent.clipboardData == false){
+            if(typeof(callback) == "function"){
+                callback(undefined);
+            }
+        };
+        var items = pasteEvent.clipboardData.items;
+        console.log("items ",items)
+        if(items == undefined){
+            if(typeof(callback) == "function"){
+                callback(undefined);
+            }
+        };
+        for (var i = 0; i < items.length; i++) {
+            // Skip content if not image
+            console.log("items[i] ",items[i])
+
+            console.log("items[i].type ",items[i].type)
+            if (items[i].type.indexOf("image") == -1) continue;
+            // Retrieve image on clipboard as blob
+            var blob = items[i].getAsFile();
+
+            if(typeof(callback) == "function"){
+                callback(blob);
+            }
+        }
+    }
+    let handleUpload = ()=>{
+        let bodyFormData = new FormData();
+        return {
+            invoke: (e)=>{
+                retrieveImageFromClipboardAsBlob(e, function(imageBlob){
+                    if(imageBlob){
+                        console.log("imageBlob ",imageBlob)
+                        bodyFormData.append('imageupload', imageBlob); 
+                        //fileUploadHttp(bodyFormData)
+                    }
+                });
+            },
+            bodyFormData:bodyFormData
+        }
+    }
+    let invokeUploadHandler = handleUpload()
+    document.getElementById("image").addEventListener("paste", function(e){
+        console.log("in paste listener")
+        invokeUploadHandler.invoke(e)
+        console.log("invokeUploadHandler.bodyFormData ",invokeUploadHandler.bodyFormData)
+    }, false);
+</script>
+</html>
