@@ -1,14 +1,19 @@
 const express = require("express")
 
-
+const cors = require("cors")
 const hbs = require("hbs");
 const app = express()
 console.log("__dirname ",__dirname)
+app.use(cors())
 app.use(express.static(__dirname+"/static"));
 const PORT=4000
 const multerupload = require("./multerConfig")
 
-
+var bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({ extended: false }))
+ 
+// parse application/json
+app.use(bodyParser.json())
 app.set("view engine","hbs");
 
 /*
@@ -23,6 +28,11 @@ app.get("/home",(req,res)=>{
     res.render("home.hbs");
 })
 
+app.post("/jsondata",(req,res)=>{
+  console.log("in /jsondata")
+  console.log("req.body ",req.body)
+  res.send({status : "location received"});
+})
 //app.post("/imageupload",multerupload.single('imageupload'),(req,res)=>{
 app.post("/imageupload",multerupload.array('imageupload',6),(req,res)=>{
   console.log("in /imageupload")
