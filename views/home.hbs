@@ -25,11 +25,26 @@
         </div>
         <div id="copypastearea"></div>
         <button onclick="showUploadData()">ShowUploadData</button>
+
+        <button onclick="triggerme(event)">triggerme</buttton>
+
     </div>
 </body>
 <script src="/js/axios.min.js"></script>
 <script>
     console.log("PasteClipboard-IntoElement logged")
+    var triggerme= (e) =>{
+        console.log("triggerme() start")
+        let clipboardData = window['clipboardData']
+        console.log("clipboardData ",e.clipboardData)
+        
+    }
+    function blobToFile(theBlob, fileName){
+        //A Blob() is almost a File() - it's just missing the two properties below which we will add
+        theBlob.lastModifiedDate = new Date();
+        theBlob.name = "fileName.png";
+        return theBlob;
+    }
     var clickme=()=>{
         let content = document.getElementById("content")
         console.log("content ",content.innerHTML)
@@ -38,6 +53,32 @@
             console.log("text ",text)
             content.innerHTML=text
         });
+        var promiseClip = navigator.clipboard.read();
+        promiseClip.then((data)=>{
+            console.log("data ",data)
+            console.log("data.length ",data.length)
+            data.forEach((info)=>{
+                console.log("info ",info)
+                if (info.type != "text/plain") {
+                    console.log("info1 ",info)
+                    console.log("info1.1 ")
+                    info.getType("image/png").then((da)=>{
+                        console.log("da ",da)
+                        //let daFile = blobToFile(da)
+                        const file = new File([da], 'noname.png', { type: da.type })
+                        let daFile=file
+                        console.log("daFile ",daFile)
+                        let fd = new FormData()
+                        fd.append("imageupload",daFile)
+                        fileUploadHttp(fd)
+                    })
+
+                } else {
+                    console.log("info2 ",info.getAs("text/plain"))
+                }
+            })
+
+        })
     }
     var uploadfile=()=>{
         console.log("in uploadfile()")
