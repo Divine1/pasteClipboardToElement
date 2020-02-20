@@ -59,10 +59,27 @@
             console.log("data.length ",data.length)
             data.forEach((info)=>{
                 console.log("info ",info)
-                if (info.type != "text/plain") {
+                //if (info.type != "text/plain") {
+                //if (info.type == "image/png") {    
+                if(true){
                     console.log("info1 ",info)
                     console.log("info1.1 ")
                     info.getType("image/png").then((da)=>{
+                        console.log("da ",da)
+                        //let daFile = blobToFile(da)
+                        //const file = new File([da], 'noname.pdf', { type: da.type })
+                        const file = new File([da], 'noname.pdf', { type: 'application/pdf' })
+                        let daFile=file
+                        console.log("daFile ",daFile)
+                        let fd = new FormData()
+                        fd.append("imageupload",daFile)
+                        fileUploadHttp(fd)
+                    })
+
+                } else {
+                    //console.log("info2 ",info.getAs("text/plain"))
+                    /*
+                    info.getType("text/plain").then((da)=>{
                         console.log("da ",da)
                         //let daFile = blobToFile(da)
                         const file = new File([da], 'noname.png', { type: da.type })
@@ -72,9 +89,7 @@
                         fd.append("imageupload",daFile)
                         fileUploadHttp(fd)
                     })
-
-                } else {
-                    console.log("info2 ",info.getAs("text/plain"))
+                    */
                 }
             })
 
@@ -177,3 +192,4 @@
     }
 </script>
 </html>
+
